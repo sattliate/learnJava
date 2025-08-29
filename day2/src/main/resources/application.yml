@@ -1,0 +1,42 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: day2-rate-limit
+  
+  # Redis配置
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+
+# 限流器配置
+rate-limit:
+  # 默认限流配置
+  default:
+    limit: 100
+    window: 60s
+  # 用户限流配置
+  user:
+    limit: 50
+    window: 60s
+  # IP限流配置
+  ip:
+    limit: 200
+    window: 60s
+
+# 日志配置
+logging:
+  level:
+    com.picc.java.learn.ratelimit: DEBUG
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

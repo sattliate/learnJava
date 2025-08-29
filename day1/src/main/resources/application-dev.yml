@@ -1,0 +1,17 @@
+server:
+  port: 8081
+
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+logging:
+  level:
+    com.picc.java.learn: DEBUG
+    org.springframework.web: DEBUG
+
+# 开发环境特定配置
+dev:
+  debug: true
+  show-sql: true

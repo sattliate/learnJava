@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 继承父项目 -->
+    <parent>
+        <groupId>com.picc.java</groupId>
+        <artifactId>learn-java</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <!-- 项目基本信息 -->
+    <artifactId>day2-rate-limit</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Day2 - Rate Limit</name>
+    <description>Day2学习项目 - 限流器实现，学习限流算法和分布式限流</description>
+
+    <!-- 项目属性配置 -->
+    <properties>
+        <!-- JDK路径配置 -->
+        <java.home>C:\Program Files (x86)\Java</java.home>
+        <maven.compiler.executable>${java.home}/bin/javac</maven.compiler.executable>
+        
+        <!-- 其他工具版本 -->
+        <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
+        <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
+    </properties>
+
+    <!-- 项目依赖 -->
+    <dependencies>
+        <!-- ==================== Spring Boot 核心依赖 ==================== -->
+        
+        <!-- Spring Boot Web Starter - 提供Web开发相关依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Test Starter - 测试相关依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- ==================== 限流器相关依赖 ==================== -->
+        
+        <!-- Spring Boot AOP Starter - 面向切面编程 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Data Redis Starter - Redis支持 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- ==================== 开发工具依赖 ==================== -->
+        
+        <!-- Spring Boot DevTools - 开发时热重载工具 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Spring Boot Configuration Processor - 配置元数据生成 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <!-- 构建配置 -->
+    <build>
+        <plugins>
+            <!-- Spring Boot Maven 插件 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- 指定主类 -->
+                    <mainClass>com.picc.java.learn.ratelimit.RateLimitApplication</mainClass>
+                    <!-- 排除开发工具依赖 -->
+                    <excludes>
+                        <exclude>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-devtools</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- Maven 编译插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <!-- 编译时显示详细信息 -->
+                    <verbose>true</verbose>
+                </configuration>
+            </plugin>
+
+            <!-- Maven 测试插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <!-- 跳过测试（可选） -->
+                    <!-- <skipTests>true</skipTests> -->
+                </configuration>
+            </plugin>
+
+            <!-- Maven 资源插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
+    <!-- Maven Profiles 配置 -->
+    <profiles>
+        <!-- JDK 1.8 Profile -->
+        <profile>
+            <id>jdk-1.8</id>
+            <activation>
+                <!-- profile默认是否激活的标识 -->
+                <activeByDefault>true</activeByDefault>
+                <!-- 当匹配的jdk被检测到，profile被激活 -->
+                <jdk>1.8</jdk>
+            </activation>
+            <properties>
+                <!-- 指定JDK路径 -->
+                <java.home>C:\jdk8u462-b08</java.home>
+                <maven.compiler.executable>${java.home}/bin/javac</maven.compiler.executable>
+            </properties>
+        </profile>
+        
+        <!-- 备用Profile：强制使用指定JDK -->
+        <profile>
+            <id>force-jdk-1.8</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <!-- 强制指定JDK路径 -->
+                <java.home>C:\jdk8u462-b08</java.home>
+                <maven.compiler.executable>${java.home}/bin/javac</maven.compiler.executable>
+                <!-- 设置JAVA_HOME -->
+                <env.JAVA_HOME>C:\jdk8u462-b08</env.JAVA_HOME>
+            </properties>
+        </profile>
+    </profiles>
+</project>

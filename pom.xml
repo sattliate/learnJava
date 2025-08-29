@@ -7,49 +7,60 @@
     <!-- 公司或者组织的唯一标志，并且配置时生成的路径也是由此生成， 如com.winner.trade，maven会将该项目打成的jar包放本地路径：/com/winner/trade -->
     <groupId>com.picc.java</groupId>
     <!-- 本项目的唯一ID，一个groupId下面可能多个项目，就是靠artifactId来区分的 -->
-    <artifactId>learn</artifactId>
+    <artifactId>learn-java</artifactId>
     <!-- 本项目目前所处的版本号 -->
     <version>1.0-SNAPSHOT</version>
-    <!-- 打包的机制，如pom,jar, maven-plugin, ejb, war, ear, rar, par，默认为jar -->
-    <packaging>jar</packaging>
+    <!-- 打包的机制，pom表示这是一个父项目 -->
+    <packaging>pom</packaging>
+
+    <!-- 项目名称和描述 -->
+    <name>Learn Java</name>
+    <description>Java学习项目 - 包含多个学习模块</description>
+
+    <!-- 子模块配置 -->
+    <modules>
+        <module>day1</module>
+        <module>day2</module>
+    </modules>
 
     <!-- 为pom定义一些常量，在pom中的其它地方可以直接引用 使用方式 如下 ：${file.encoding} -->
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.home>C:\Program Files (x86)\Java</java.home>
+        <java.home>C:\Program Files\BellSoft\LibericaJDK-8</java.home>
+        <spring.boot.version>2.7.18</spring.boot.version>
     </properties>
     
+    <!-- 依赖管理 - 统一管理所有子项目的依赖版本 -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Boot 依赖管理 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
     <build>
-
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <fork>true</fork>
-                    <executable>${java.home}/bin/javac</executable>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>com.picc.java.learn.HellowWord</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                        <fork>true</fork>
+                        <executable>${java.home}/bin/javac</executable>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>

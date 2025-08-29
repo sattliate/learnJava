@@ -1,0 +1,31 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /day1
+
+spring:
+  application:
+    name: day1-hello-world
+  
+  profiles:
+    active: dev
+  
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+logging:
+  level:
+    com.picc.java.learn: DEBUG
+    org.springframework: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/day1-application.log
+
+# 自定义配置
+app:
+  name: "Day1 Hello World"
+  version: "1.0.0"
+  description: "Day1学习项目"
