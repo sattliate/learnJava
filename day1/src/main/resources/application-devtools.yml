@@ -1,0 +1,58 @@
+# DevTools 热加载专用配置文件
+# 文件名：application-devtools.yml
+# 激活方式：--spring.profiles.active=devtools
+
+# DevTools 配置
+spring:
+  devtools:
+    # 启用热重载
+    restart:
+      enabled: true
+      # 排除的路径（这些路径的修改不会触发重启）
+      exclude: 
+        - static/**
+        - public/**
+        - templates/**
+        - META-INF/**
+        - WEB-INF/**
+      # 包含的路径（这些路径的修改会触发重启）
+      additional-paths: 
+        - src/main/java/**
+        - src/main/resources/**
+      # 轮询间隔（毫秒）
+      poll-interval: 2s
+      # 静默期（毫秒）
+      quiet-period: 400ms
+    
+    # 启用 LiveReload
+    livereload:
+      enabled: true
+      port: 35729
+    
+    # 启用远程开发
+    remote:
+      enabled: false
+      # 远程应用上下文路径
+      context-path: /devtools
+      # 远程应用端口
+      port: 8081
+
+# 日志配置 - 显示 DevTools 活动
+logging:
+  level:
+    org.springframework.boot.devtools: DEBUG
+    org.springframework.boot.devtools.restart: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 应用配置
+app:
+  name: "Day1 DevTools Demo"
+  version: "1.0.0"
+  description: "Spring Boot DevTools 热加载演示应用"
+
+# 服务器配置
+server:
+  port: 8081
+  servlet:
+    context-path: /day1

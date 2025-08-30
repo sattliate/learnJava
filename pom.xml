@@ -25,11 +25,27 @@
 
     <!-- 为pom定义一些常量，在pom中的其它地方可以直接引用 使用方式 如下 ：${file.encoding} -->
     <properties>
+        <!-- Java 版本配置 -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+        
+        <!-- 项目编码配置 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        
+        <!-- Java 环境配置 -->
         <java.home>C:\Program Files\BellSoft\LibericaJDK-8</java.home>
+        <maven.compiler.executable>${java.home}/bin/javac</maven.compiler.executable>
+        
+        <!-- 依赖版本管理 -->
         <spring.boot.version>2.7.18</spring.boot.version>
+        
+        <!-- 插件版本管理 -->
+        <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
+        <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
+        <maven.resources.plugin.version>3.2.0</maven.resources.plugin.version>
+        <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
     </properties>
     
     <!-- 依赖管理 - 统一管理所有子项目的依赖版本 -->
@@ -46,21 +62,129 @@
         </dependencies>
     </dependencyManagement>
     
+    <!-- 构建配置 - 统一管理所有子项目的构建配置 -->
     <build>
+        <!-- 插件管理 - 子项目可以继承这些插件配置 -->
         <pluginManagement>
             <plugins>
+                <!-- Maven 编译插件 - 统一Java编译配置 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>${maven.compiler.plugin.version}</version>
                     <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                        <compilerVersion>${maven.compiler.compilerVersion}</compilerVersion>
+                        <encoding>${project.build.sourceEncoding}</encoding>
                         <fork>true</fork>
-                        <executable>${java.home}/bin/javac</executable>
+                        <executable>${maven.compiler.executable}</executable>
+                        <verbose>true</verbose>
+                    </configuration>
+                </plugin>
+                
+                <!-- Maven 测试插件 - 统一测试配置 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven.surefire.plugin.version}</version>
+                    <configuration>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <skipTests>false</skipTests>
+                        <testFailureIgnore>false</testFailureIgnore>
+                    </configuration>
+                </plugin>
+                
+                <!-- Maven 资源插件 - 统一资源处理配置 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${maven.resources.plugin.version}</version>
+                    <configuration>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <nonFilteredFileExtensions>
+                            <nonFilteredFileExtension>pdf</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>swf</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>gif</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>jpg</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>png</nonFilteredFileExtension>
+                        </nonFilteredFileExtensions>
+                    </configuration>
+                </plugin>
+                
+                <!-- Maven JAR 插件 - 统一打包配置 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven.jar.plugin.version}</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addClasspath>true</addClasspath>
+                                <classpathPrefix>lib/</classpathPrefix>
+                            </manifest>
+                        </archive>
                     </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
+        
+        <!-- 默认插件配置 - 所有子项目都会继承 -->
+        <plugins>
+            <!-- Maven 编译插件 - 确保所有子项目都使用相同的Java版本 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            
+            <!-- Maven 资源插件 - 确保所有子项目都使用相同的编码 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
+    
+    <!-- 配置文件管理 - 统一管理所有子项目的配置文件 -->
+    <profiles>
+        <!-- JDK 1.8 配置 - 默认激活 -->
+        <profile>
+            <id>jdk-1.8</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <jdk>1.8</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.source>1.8</maven.compiler.source>
+                <maven.compiler.target>1.8</maven.compiler.target>
+                <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+                <java.home>C:\Program Files\BellSoft\LibericaJDK-8</java.home>
+                <maven.compiler.executable>${java.home}/bin/javac</maven.compiler.executable>
+            </properties>
+        </profile>
+        
+        <!-- 开发环境配置 -->
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+                <maven.test.skip>false</maven.test.skip>
+            </properties>
+        </profile>
+        
+        <!-- 生产环境配置 -->
+        <profile>
+            <id>prod</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>prod</spring.profiles.active>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+        </profile>
+    </profiles>
 </project>

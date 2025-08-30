@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Boot DevTools 热加载演示</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #4299e1;
+        }
+        
+        .button {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .result {
+            background: #edf2f7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+        
+        .input-group {
+            margin: 15px 0;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 5px;
+        }
+        
+        .status {
+            background: #c6f6d5;
+            border: 1px solid #9ae6b4;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .instructions {
+            background: #fed7d7;
+            border: 1px solid #feb2b2;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .endpoint {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Spring Boot DevTools 热加载演示</h1>
+        
+        <div class="status">
+            <h4>📊 当前状态</h4>
+            <p>DevTools 热加载功能已启用！修改代码后应用会自动重启。</p>
+        </div>
+        
+        <div class="instructions">
+            <h4>📝 热加载测试步骤</h4>
+            <ol>
+                <li>启动应用后，修改 <code>DevToolsDemoController.java</code> 中的变量值</li>
+                <li>保存文件，观察控制台输出</li>
+                <li>应用会自动重启（约 1-2 秒）</li>
+                <li>刷新浏览器查看修改效果</li>
+                <li>无需手动重启应用！</li>
+            </ol>
+        </div>
+        
+        <div class="demo-section">
+            <h3>🎯 欢迎信息热加载测试</h3>
+            <p>修改控制器中的 <code>welcomeMessage</code> 变量来测试热加载效果</p>
+            <button class="button" onclick="testWelcome()">测试欢迎信息</button>
+            <div class="result" id="welcomeResult">点击按钮测试...</div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>🔢 计数器热加载测试</h3>
+            <p>修改控制器中的 <code>counter</code> 变量初始值来测试热加载效果</p>
+            <button class="button" onclick="testCounter()">测试计数器</button>
+            <button class="button" onclick="resetCounter()">重置计数器</button>
+            <div class="result" id="counterResult">点击按钮测试...</div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>⏰ 时间格式热加载测试</h3>
+            <p>修改控制器中的 <code>currentTimeFormat</code> 变量来测试热加载效果</p>
+            <button class="button" onclick="testTime()">测试时间格式</button>
+            <div class="input-group">
+                <label>动态修改时间格式：</label>
+                <input type="text" id="timeFormat" placeholder="yyyy-MM-dd HH:mm:ss" value="yyyy-MM-dd HH:mm:ss">
+                <button class="button" onclick="updateTimeFormat()">更新格式</button>
+            </div>
+            <div class="result" id="timeResult">点击按钮测试...</div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>🔄 欢迎信息动态更新</h3>
+            <p>运行时动态修改欢迎信息（无需重启应用）</p>
+            <div class="input-group">
+                <label>新的欢迎信息：</label>
+                <input type="text" id="newWelcome" placeholder="输入新的欢迎信息" value="🎉 热加载测试成功！">
+                <button class="button" onclick="updateWelcome()">更新欢迎信息</button>
+            </div>
+            <div class="result" id="updateWelcomeResult">输入信息并点击按钮...</div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>📋 DevTools 状态信息</h3>
+            <button class="button" onclick="getStatus()">获取状态</button>
+            <div class="result" id="statusResult">点击按钮获取状态...</div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>🔗 API 端点</h3>
+            <p>以下是可用的测试端点：</p>
+            <div class="endpoint">GET /day1/devtools/welcome</div>
+            <div class="endpoint">GET /day1/devtools/counter</div>
+            <div class="endpoint">GET /day1/devtools/time</div>
+            <div class="endpoint">GET /day1/devtools/status</div>
+            <div class="endpoint">GET /day1/devtools/update-welcome?message=新消息</div>
+            <div class="endpoint">GET /day1/devtools/update-format?format=新格式</div>
+            <div class="endpoint">GET /day1/devtools/reset-counter</div>
+        </div>
+    </div>
+
+    <script>
+        const baseUrl = '/day1/devtools';
+        
+        async function makeRequest(url, method = 'GET') {
+            try {
+                const response = await fetch(url, { method });
+                const data = await response.json();
+                return JSON.stringify(data, null, 2);
+            } catch (error) {
+                return `错误: ${error.message}`;
+            }
+        }
+        
+        async function testWelcome() {
+            const result = await makeRequest(`${baseUrl}/welcome`);
+            document.getElementById('welcomeResult').textContent = result;
+        }
+        
+        async function testCounter() {
+            const result = await makeRequest(`${baseUrl}/counter`);
+            document.getElementById('counterResult').textContent = result;
+        }
+        
+        async function resetCounter() {
+            const result = await makeRequest(`${baseUrl}/reset-counter`);
+            document.getElementById('counterResult').textContent = result;
+        }
+        
+        async function testTime() {
+            const result = await makeRequest(`${baseUrl}/time`);
+            document.getElementById('timeResult').textContent = result;
+        }
+        
+        async function updateTimeFormat() {
+            const format = document.getElementById('timeFormat').value;
+            const result = await makeRequest(`${baseUrl}/update-format?format=${encodeURIComponent(format)}`);
+            document.getElementById('timeResult').textContent = result;
+        }
+        
+        async function updateWelcome() {
+            const message = document.getElementById('newWelcome').value;
+            const result = await makeRequest(`${baseUrl}/update-welcome?message=${encodeURIComponent(message)}`);
+            document.getElementById('updateWelcomeResult').textContent = result;
+        }
+        
+        async function getStatus() {
+            const result = await makeRequest(`${baseUrl}/status`);
+            document.getElementById('statusResult').textContent = result;
+        }
+        
+        // 页面加载完成后自动获取状态
+        window.onload = function() {
+            getStatus();
+        };
+    </script>
+</body>
+</html>

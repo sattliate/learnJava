@@ -33,7 +33,7 @@ public class HelloWorld {
      * 主方法 - 演示预约数据的过滤操作
      * @param args 命令行参数
      */
-    public static void main(String[] args) {
+    public static void main1(String[] args) {
         // 创建示例数据
         List<AppointmentData> originalList = new ArrayList<>();
         originalList.add(new AppointmentData(1, "预约1"));

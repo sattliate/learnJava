@@ -6,9 +6,9 @@ server:
 spring:
   application:
     name: day1-hello-world
-  
+#  激活具体那个yanm文件
   profiles:
-    active: dev
+    active: devtools
   
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
