@@ -1,0 +1,65 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /day3
+
+spring:
+  application:
+    name: order-alert-module
+  
+  # 开发工具配置
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+# 日志配置
+logging:
+  level:
+    com.picc.java.learn.alert: DEBUG
+    org.springframework.web: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 订单预警配置
+club:
+  alert:
+    # 省份代码
+    province: 44000000
+    # 阈值配置
+    thresholds: 10
+    # 时间窗口配置（小时）
+    time-window: 12
+    # 渠道配置（多个渠道用逗号分隔）
+    source: 14,28,39
+    # 预警管理员配置
+    managers:
+      # 第36个管理员组
+      - id: 36
+        # 接收人配置（3个人）
+        receiver:
+          - phone: "18622201499"
+            name: "张丽"
+            eBanUserId: "12438032-VvhmMFJzjW8jtWyvm0mHomXxqugMo6Bw"
+          - phone: "18622201500"
+            name: "李强"
+            eBanUserId: "12438032-ABC123DEF456GHI789"
+          - phone: "18622201501"
+            name: "王芳"
+            eBanUserId: "12438032-XYZ789ABC123DEF456"
+    
+    # 预警免打扰机制配置
+    quiet-mode:
+      # 免打扰时间段（分钟）：第一次预警后，下次预警时间间隔依次为10分钟、30分钟、60分钟
+      quiet-periods: [10, 30, 60]
+      # 最大预警次数：超过此次数后，使用最后一个免打扰时间段（60分钟）作为预警频率
+      max-alert-count: 3
+      # 是否启用免打扰机制
+      enabled: true
+      # Redis key前缀
+      redis-key-prefix: "quiet_mode"
+      # 预警记录过期时间（分钟）
+      expire-minutes: 60
+      # 是否启用调试日志
+      debug-enabled: true
