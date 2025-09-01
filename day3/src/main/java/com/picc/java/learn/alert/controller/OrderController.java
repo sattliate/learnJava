@@ -8,7 +8,7 @@ import com.picc.java.learn.alert.dto.OrderSpeedInfoDTO;
 import com.picc.java.learn.alert.dto.OrderTimeRangeStatsDTO;
 import com.picc.java.learn.alert.service.AlertQuietModeService;
 import com.picc.java.learn.alert.service.MockDatabaseService;
-import com.picc.java.learn.alert.service.MockRedisSortedSetService;
+
 import com.picc.java.learn.alert.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +40,7 @@ public class OrderController {
     @Autowired
     private MockDatabaseService mockDatabaseService;
 
-    @Autowired
-    private MockRedisSortedSetService mockRedisSortedSetService;
+
 
     /**
      * 创建订单
@@ -215,7 +214,7 @@ public class OrderController {
 
             String redisKey = request.getMemberPhone() + "-" + request.getChannel() + "-" + request.getRegisterId();
             OrderTimeRangeStatsDTO stats = 
-                    mockRedisSortedSetService.getOrderStatsInTimeRange(redisKey, request.getStartTime(), request.getEndTime());
+                    mockRedisService.getOrderStatsInTimeRange(redisKey, request.getStartTime(), request.getEndTime());
 
             return ApiResponse.success(stats, "查询成功");
 
@@ -244,7 +243,7 @@ public class OrderController {
             long startTime = endTime - (request.getHours() * 60 * 60 * 1000L);
             
             OrderTimeRangeStatsDTO stats = 
-                    mockRedisSortedSetService.getOrderStatsInTimeRange(redisKey, startTime, endTime);
+                    mockRedisService.getOrderStatsInTimeRange(redisKey, startTime, endTime);
 
             return ApiResponse.success(stats, "查询成功");
 
@@ -291,7 +290,7 @@ public class OrderController {
             status.put("alertCount", mockDatabaseService.getAlertCount());
             
             // Redis状态
-            status.put("redisKeyCount", mockRedisSortedSetService.getKeyCount());
+            status.put("redisKeyCount", mockRedisService.getKeyCount());
             
             // 系统信息
             status.put("timestamp", System.currentTimeMillis());

@@ -1,5 +1,7 @@
 package com.picc.java.learn.alert.service;
 
+import com.picc.java.learn.alert.dto.OrderSpeedInfoDTO;
+import com.picc.java.learn.alert.dto.OrderTimeRangeStatsDTO;
 import com.picc.java.learn.alert.dto.RedisEntry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -319,6 +321,107 @@ public class MockRedisService {
     }
 
     // ==================== 基础Redis操作完成 ====================
+
+    // ==================== 业务方法（从MockRedisSortedSetService合并） ====================
+
+    /**
+     * 获取指定时间范围内的订单统计
+     * 
+     * @param key Redis key
+     * @param startTime 开始时间戳
+     * @param endTime 结束时间戳
+     * @return 时间范围内订单统计
+     */
+    public OrderTimeRangeStatsDTO getOrderStatsInTimeRange(String key, long startTime, long endTime) {
+        @SuppressWarnings("unchecked")
+        TreeMap<Long, Set<String>> sortedSet = get(key, RedisEntry.RedisDataType.SORTED_SET);
+        
+        if (sortedSet == null || sortedSet.isEmpty()) {
+            return OrderTimeRangeStatsDTO.builder()
+                    .key(key)
+                    .startTime(startTime)
+                    .endTime(endTime)
+                    .orderCount(0)
+                    .orderIds(Collections.emptyList())
+                    .timeIntervalMinutes(0)
+                    .speed(0.0)
+                    .build();
+        }
+
+        // 过滤时间范围内的订单
+        List<String> orderIds = new ArrayList<>();
+        for (Map.Entry<Long, Set<String>> entry : sortedSet.entrySet()) {
+            long score = entry.getKey();
+            if (score >= startTime && score <= endTime) {
+                orderIds.addAll(entry.getValue());
+            }
+        }
+
+        long orderCount = orderIds.size();
+        long timeIntervalMinutes = (endTime - startTime) / (60 * 1000L);
+        double speed = timeIntervalMinutes > 0 ? (double) orderCount / timeIntervalMinutes : 0.0;
+
+        return OrderTimeRangeStatsDTO.builder()
+                .key(key)
+                .startTime(startTime)
+                .endTime(endTime)
+                .orderCount(orderCount)
+                .orderIds(orderIds)
+                .timeIntervalMinutes(timeIntervalMinutes)
+                .speed(speed)
+                .build();
+    }
+
+    /**
+     * 计算订单速度信息
+     * 
+     * @param key Redis key
+     * @param timeWindowHours 时间窗口（小时）
+     * @return 订单速度信息
+     */
+    public OrderSpeedInfoDTO calculateOrderSpeed(String key, int timeWindowHours) {
+        long currentTime = System.currentTimeMillis();
+        long startTime = currentTime - (timeWindowHours * 60 * 60 * 1000L);
+        
+        OrderTimeRangeStatsDTO stats = getOrderStatsInTimeRange(key, startTime, currentTime);
+        
+        // 计算各种速度指标
+        double ordersPerHour = timeWindowHours > 0 ? (double) stats.getOrderCount() / timeWindowHours : 0.0;
+        double ordersPerMinute = ordersPerHour / 60.0;
+        double ordersPerSecond = ordersPerMinute / 60.0;
+        
+        return OrderSpeedInfoDTO.builder()
+                .key(key)
+                .timeWindowHours(timeWindowHours)
+                .windowStartTime(new Date(startTime))
+                .windowEndTime(new Date(currentTime))
+                .orderCount(stats.getOrderCount())
+                .ordersPerHour(ordersPerHour)
+                .ordersPerMinute(ordersPerMinute)
+                .ordersPerSecond(ordersPerSecond)
+                .orderIds(stats.getOrderIds())
+                .build();
+    }
+
+    /**
+     * 计算多个时间窗口的订单速度信息
+     * 
+     * @param key Redis key
+     * @param timeWindows 时间窗口数组（小时）
+     * @return 多个时间窗口的速度信息
+     */
+    public List<OrderSpeedInfoDTO> calculateOrderSpeedMultiWindow(String key, int... timeWindows) {
+        List<OrderSpeedInfoDTO> results = new ArrayList<>();
+        
+        for (int timeWindow : timeWindows) {
+            OrderSpeedInfoDTO speedInfo = calculateOrderSpeed(key, timeWindow);
+            results.add(speedInfo);
+        }
+        
+        return results;
+    }
+
+    // ==================== 业务方法完成 ====================
 
     // ==================== 系统管理方法 ====================
 
