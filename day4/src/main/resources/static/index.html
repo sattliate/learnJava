@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单预警系统测试页面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffd43b 0%, #fcc419 100%);
+            color: #333;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #e8f5e8;
+            border-left: 4px solid #51cf66;
+        }
+
+        .result.error {
+            background: #ffe8e8;
+            border-left-color: #ff6b6b;
+        }
+
+        .result.info {
+            background: #e8f4fd;
+            border-left-color: #667eea;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid #e1e5e9;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .alert-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+        }
+
+        .alert-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+
+        .alert-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-header {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .alert-details {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .success-message {
+            color: #51cf66;
+            font-weight: bold;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 订单预警系统</h1>
+            <p>测试订单创建、预警检测和速度监控功能</p>
+        </div>
+
+        <div class="content">
+            <!-- 系统状态 -->
+            <div class="section">
+                <h2>📊 系统状态</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="orderCount">-</div>
+                        <div class="stat-label">订单总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="alertCount">-</div>
+                        <div class="stat-label">预警记录数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="redisKeyCount">-</div>
+                        <div class="stat-label">Redis键数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="systemStatus">-</div>
+                        <div class="stat-label">系统状态</div>
+                    </div>
+                </div>
+                <button class="btn" onclick="refreshStatus()">🔄 刷新状态</button>
+            </div>
+
+            <!-- 预警免打扰状态 -->
+            <div class="section">
+                <h2>🔇 预警免打扰状态</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="alertKey">预警维度key</label>
+                        <input type="text" id="alertKey" placeholder="格式: 手机号-省份-渠道-registerId" style="width: 300px;">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn" onclick="getAlertQuietModeStatus()">🔍 查询免打扰状态</button>
+                    </div>
+                </div>
+                <div id="quietModeStatus" class="result hidden"></div>
+                
+                <div class="button-group" style="margin-top: 15px;">
+                    <button class="btn btn-warning" onclick="resetAlertQuietMode()">🔄 重置免打扰记录</button>
+                    <button class="btn btn-danger" onclick="clearAllAlertQuietMode()">🗑️ 清空所有免打扰记录</button>
+                </div>
+            </div>
+
+            <!-- 单个订单创建 -->
+            <div class="section">
+                <h2>📝 创建单个订单</h2>
+                <form id="singleOrderForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="memberPhone">会员手机号</label>
+                            <input type="text" id="memberPhone" value="13800138000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="memberName">会员姓名</label>
+                            <input type="text" id="memberName" value="张三" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="province">省份</label>
+                            <select id="province" required>
+                                <option value="44000000" selected>广东省 (44000000)</option>
+                                <option value="11000000">北京市 (11000000)</option>
+                                <option value="31000000">上海市 (31000000)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="channel">渠道</label>
+                            <select id="channel" required>
+                                <option value="14" selected>渠道14</option>
+                                <option value="28">渠道28</option>
+                                <option value="39">渠道39</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="registerId">注册ID</label>
+                            <input type="text" id="registerId" value="12345" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productName">商品名称</label>
+                            <input type="text" id="productName" value="测试商品" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="orderAmount">订单金额</label>
+                            <input type="number" id="orderAmount" value="99.99" step="0.01" min="0.01" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">✅ 创建订单</button>
+                </form>
+                <div id="singleOrderResult" class="result hidden"></div>
+            </div>
+
+            <!-- 批量订单创建 -->
+            <div class="section">
+                <h2>🚀 批量创建订单（测试预警）</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="batchCount">订单数量</label>
+                        <input type="number" id="batchCount" value="10" min="1" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="batchInterval">创建间隔（毫秒）</label>
+                        <input type="number" id="batchInterval" value="1000" min="100" max="10000">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="batchMemberPhone">会员手机号</label>
+                        <input type="text" id="batchMemberPhone" value="13800138000">
+                    </div>
+                    <div class="form-group">
+                        <label for="batchMemberName">会员姓名</label>
+                        <input type="text" id="batchMemberName" value="李四">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="batchProvince">省份</label>
+                        <select id="batchProvince">
+                            <option value="44000000" selected>广东省 (44000000)</option>
+                            <option value="11000000">北京市 (11000000)</option>
+                            <option value="31000000">上海市 (31000000)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="batchChannel">渠道</label>
+                        <select id="batchChannel">
+                            <option value="14" selected>渠道14</option>
+                            <option value="28">渠道28</option>
+                            <option value="39">渠道39</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="batchRegisterId">注册ID</label>
+                        <input type="text" id="batchRegisterId" value="67890">
+                    </div>
+                    <div class="form-group">
+                        <label for="batchProductName">商品名称</label>
+                        <input type="text" id="batchProductName" value="批量测试商品">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="batchOrderAmount">订单金额</label>
+                        <input type="number" id="batchOrderAmount" value="88.88" step="0.01" min="0.01">
+                    </div>
+                </div>
+                <button class="btn btn-warning" onclick="startBatchCreate()">🚀 开始批量创建</button>
+                <button class="btn btn-danger" onclick="stopBatchCreate()" id="stopBtn" style="display: none;">⏹️ 停止创建</button>
+                <div id="batchProgress" class="result hidden"></div>
+            </div>
+
+            <!-- 订单查询 -->
+            <div class="section">
+                <h2>🔍 订单查询</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="queryMemberPhone">会员手机号</label>
+                        <input type="text" id="queryMemberPhone" value="13800138000">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn" onclick="queryOrdersByMember()">🔍 查询会员订单</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="queryProvince">省份</label>
+                        <select id="queryProvince">
+                            <option value="44000000" selected>广东省 (44000000)</option>
+                            <option value="11000000">北京市 (11000000)</option>
+                            <option value="31000000">上海市 (31000000)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="queryChannel">渠道</label>
+                        <select id="queryChannel">
+                            <option value="14" selected>渠道14</option>
+                            <option value="28">渠道28</option>
+                            <option value="39">渠道39</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn" onclick="searchOrders()">🔍 搜索订单</button>
+                <div id="queryResult" class="result hidden"></div>
+            </div>
+
+
+
+
+
+            <!-- 预警记录 -->
+            <div class="section">
+                <h2>🚨 预警记录</h2>
+                <button class="btn" onclick="getAllAlerts()">📋 获取所有预警</button>
+                <div id="alertsResult" class="result hidden"></div>
+            </div>
+
+            <!-- 数据清理 -->
+            <div class="section">
+                <h2>🧹 数据清理</h2>
+                <button class="btn btn-danger" onclick="clearAllData()">🗑️ 清空所有数据</button>
+                <div id="clearResult" class="result hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/day3/api/orders';
+        let batchCreateInterval = null;
+        let currentBatchCount = 0;
+        let targetBatchCount = 0;
+
+        // 页面加载完成后刷新状态
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshStatus();
+        });
+
+        // 刷新系统状态
+        async function refreshStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('orderCount').textContent = data.data.orderCount;
+                    document.getElementById('alertCount').textContent = data.data.alertCount;
+                    document.getElementById('redisKeyCount').textContent = data.data.redisKeyCount;
+                    document.getElementById('systemStatus').textContent = data.data.status;
+                }
+            } catch (error) {
+                console.error('获取系统状态失败:', error);
+            }
+        }
+
+        // 获取预警免打扰状态
+        async function getAlertQuietModeStatus() {
+            const alertKey = document.getElementById('alertKey').value.trim();
+            if (!alertKey) {
+                alert('请输入预警维度key');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/alerts/quiet-mode/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ alertKey: alertKey })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const status = data.data;
+                    const statusHtml = `
+                        <div class="alert-info">
+                            <h4>🔇 预警免打扰状态</h4>
+                            <div class="status-details">
+                                <p><strong>预警维度:</strong> ${status.alertKey}</p>
+                                <p><strong>预警次数:</strong> ${status.alertCount}</p>
+                                <p><strong>首次预警时间:</strong> ${status.firstAlertTime ? new Date(status.firstAlertTime).toLocaleString() : '无'}</p>
+                                <p><strong>最后预警时间:</strong> ${status.lastAlertTime ? new Date(status.lastAlertTime).toLocaleString() : '无'}</p>
+                                <p><strong>下次预警时间:</strong> ${status.nextAlertTime ? new Date(status.nextAlertTime).toLocaleString() : '无'}</p>
+                                <p><strong>预警模式:</strong> ${status.alertCount >= 3 ? '每小时预警模式' : '免打扰模式'}</p>
+                                <p><strong>状态:</strong> <span class="status-${status.canSend ? 'success' : 'warning'}">${status.status}</span></p>
+                            </div>
+                        </div>
+                    `;
+                    // 直接显示HTML内容
+                    const element = document.getElementById('quietModeStatus');
+                    element.classList.remove('hidden');
+                    element.className = 'result';
+                    element.innerHTML = statusHtml;
+                } else {
+                    showError('quietModeStatus', '查询失败: ' + data.message);
+                }
+            } catch (error) {
+                showError('quietModeStatus', '查询失败: ' + error.message);
+            }
+        }
+
+        // 重置预警免打扰记录
+        async function resetAlertQuietMode() {
+            const alertKey = document.getElementById('alertKey').value.trim();
+            if (!alertKey) {
+                alert('请输入预警维度key');
+                return;
+            }
+
+            if (!confirm(`确定要重置预警维度 "${alertKey}" 的免打扰记录吗？`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/alerts/quiet-mode/reset/${encodeURIComponent(alertKey)}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult('quietModeStatus', data, '重置免打扰记录');
+                    // 重新查询状态
+                    setTimeout(() => getAlertQuietModeStatus(), 1000);
+                } else {
+                    showError('quietModeStatus', '重置失败: ' + data.message);
+                }
+            } catch (error) {
+                showError('quietModeStatus', '重置失败: ' + error.message);
+            }
+        }
+
+        // 清空所有预警免打扰记录
+        async function clearAllAlertQuietMode() {
+            if (!confirm('确定要清空所有预警免打扰记录吗？这将允许所有预警重新发送！')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/alerts/quiet-mode/clear`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult('quietModeStatus', data, '清空所有免打扰记录');
+                    // 清空输入框
+                    document.getElementById('alertKey').value = '';
+                } else {
+                    showError('quietModeStatus', '清空失败: ' + data.message);
+                }
+            } catch (error) {
+                showError('quietModeStatus', '清空失败: ' + error.message);
+            }
+        }
+
+        // 创建单个订单
+        document.getElementById('singleOrderForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const orderData = {
+                memberPhone: document.getElementById('memberPhone').value,
+                memberName: document.getElementById('memberName').value,
+                province: document.getElementById('province').value,
+                channel: document.getElementById('channel').value,
+                registerId: document.getElementById('registerId').value,
+                productName: document.getElementById('productName').value,
+                amount: parseFloat(document.getElementById('orderAmount').value),
+                orderStatus: 'CREATED'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderData)
+                });
+
+                const result = await response.json();
+                showResult('singleOrderResult', result, '订单创建');
+                
+                if (result.success) {
+                    refreshStatus();
+                }
+            } catch (error) {
+                showError('singleOrderResult', '订单创建失败: ' + error.message);
+            }
+        });
+
+        // 开始批量创建订单
+        async function startBatchCreate() {
+            const count = parseInt(document.getElementById('batchCount').value);
+            const interval = parseInt(document.getElementById('batchInterval').value);
+            
+            if (count <= 0 || interval <= 0) {
+                alert('请输入有效的数量和间隔');
+                return;
+            }
+
+            targetBatchCount = count;
+            currentBatchCount = 0;
+            
+            document.getElementById('stopBtn').style.display = 'inline-block';
+            document.getElementById('batchProgress').classList.remove('hidden');
+            document.getElementById('batchProgress').innerHTML = '<div class="loading"></div>准备开始批量创建...';
+
+            batchCreateInterval = setInterval(async () => {
+                if (currentBatchCount >= targetBatchCount) {
+                    stopBatchCreate();
+                    return;
+                }
+
+                const orderData = {
+                    memberPhone: document.getElementById('batchMemberPhone').value,
+                    memberName: document.getElementById('batchMemberName').value,
+                    province: document.getElementById('batchProvince').value,
+                    channel: document.getElementById('batchChannel').value,
+                    registerId: document.getElementById('batchRegisterId').value,
+                    productName: '批量测试商品',
+                    amount: parseFloat(document.getElementById('batchOrderAmount').value),
+                    orderStatus: 'CREATED'
+                };
+
+                try {
+                    const response = await fetch(`${API_BASE}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(orderData)
+                    });
+
+                    const result = await response.json();
+                    currentBatchCount++;
+                    
+                    document.getElementById('batchProgress').innerHTML = 
+                        `<div class="loading"></div>已创建 ${currentBatchCount}/${targetBatchCount} 个订单...`;
+                    
+                    if (currentBatchCount >= targetBatchCount) {
+                        stopBatchCreate();
+                        document.getElementById('batchProgress').innerHTML = 
+                            '<span class="success-message">✅ 批量创建完成！</span>';
+                        refreshStatus();
+                    }
+                } catch (error) {
+                    console.error('批量创建订单失败:', error);
+                }
+            }, interval);
+        }
+
+        // 停止批量创建
+        function stopBatchCreate() {
+            if (batchCreateInterval) {
+                clearInterval(batchCreateInterval);
+                batchCreateInterval = null;
+            }
+            document.getElementById('stopBtn').style.display = 'none';
+        }
+
+        // 查询会员订单
+        async function queryOrdersByMember() {
+            const memberPhone = document.getElementById('queryMemberPhone').value;
+            if (!memberPhone) {
+                alert('请输入会员手机号');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/member`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ memberPhone: memberPhone })
+                });
+                const result = await response.json();
+                showResult('queryResult', result, '会员订单查询');
+            } catch (error) {
+                showError('queryResult', '查询失败: ' + error.message);
+            }
+        }
+
+        // 搜索订单
+        async function searchOrders() {
+            const province = document.getElementById('queryProvince').value;
+            const channel = document.getElementById('queryChannel').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/search`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ province: province, channel: channel })
+                });
+                const result = await response.json();
+                showResult('queryResult', result, '订单搜索');
+            } catch (error) {
+                showError('queryResult', '搜索失败: ' + error.message);
+            }
+        }
+
+
+
+
+
+
+
+
+
+        // 获取所有预警
+        async function getAllAlerts() {
+            try {
+                const response = await fetch(`${API_BASE}/alerts`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+                const result = await response.json();
+                showResult('alertsResult', result, '预警记录查询');
+            } catch (error) {
+                showError('alertsResult', '查询失败: ' + error.message);
+            }
+        }
+
+        // 清空所有数据
+        async function clearAllData() {
+            if (!confirm('确定要清空所有数据吗？此操作不可恢复！')) {
+                return;
+            }
+
+            try {
+                // 这里需要后端提供清空数据的接口
+                // 暂时模拟清空操作
+                document.getElementById('clearResult').classList.remove('hidden');
+                document.getElementById('clearResult').innerHTML = 
+                    '<span class="success-message">✅ 数据已清空（模拟）</span>';
+                
+                // 刷新状态
+                setTimeout(() => {
+                    refreshStatus();
+                }, 1000);
+            } catch (error) {
+                showError('clearResult', '清空失败: ' + error.message);
+            }
+        }
+
+        // 显示结果
+        function showResult(elementId, result, operation) {
+            const element = document.getElementById(elementId);
+            element.classList.remove('hidden');
+            
+            if (result.success) {
+                element.className = 'result';
+                element.innerHTML = `
+                    <strong>✅ ${operation}成功</strong><br>
+                    <strong>消息:</strong> ${result.message}<br>
+                    <strong>数据:</strong> <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            } else {
+                element.className = 'result error';
+                element.innerHTML = `
+                    <strong>❌ ${operation}失败</strong><br>
+                    <strong>错误:</strong> ${result.message}
+                `;
+            }
+        }
+
+        // 显示错误
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.classList.remove('hidden');
+            element.className = 'result error';
+            element.innerHTML = `<strong>❌ 错误:</strong> ${message}`;
+        }
+
+        // 页面卸载时清理定时器
+        window.addEventListener('beforeunload', function() {
+            stopBatchCreate();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+# Cursor Ignore File
+# Files and directories that Cursor AI should ignore
+
+# Build outputs
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# IDE files
+*.iml
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Gradle
+.gradle/
+gradlew
+gradlew.bat
+
+# Node modules (if any)
+node_modules/
+
+# Compiled files
+*.o
+*.so
+*.dylib
+*.dll
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration files with sensitive data
+application-prod.yml
+application-prod.properties
+*.env
+.env.*
+
+# Test coverage reports
+coverage/
+*.coverage

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day4 订单预警风险管控系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            backdrop-filter: blur(10px);
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: #667eea;
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .feature-description {
+            color: #6c757d;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .feature-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .feature-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .quick-actions {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .quick-actions h3 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            font-size: 1.8em;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .system-info {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .system-info h3 {
+            color: #0c5460;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #bee5eb;
+        }
+
+        .info-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #0c5460;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-online {
+            background: #28a745;
+        }
+
+        .status-offline {
+            background: #dc3545;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .highlight h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .highlight ul {
+            margin-left: 20px;
+            color: #495057;
+        }
+
+        .highlight li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Day4 订单预警风险管控系统</h1>
+            <p>智能风险识别 · 实时预警监控 · 自动化阻断管理</p>
+            <div class="version-badge">Version 4.0 - 风险管控增强版</div>
+        </div>
+
+        <div class="main-content">
+            <!-- 系统特性展示 -->
+            <div class="feature-grid">
+                <div class="feature-card" onclick="window.open('risk-control.html', '_blank')">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">风险管控管理</div>
+                    <div class="feature-description">
+                        实时监控预警维度、权重记录、阻断状态，提供完整的风险管控管理界面
+                    </div>
+                    <button class="feature-btn">进入管理</button>
+                </div>
+
+                <div class="feature-card" onclick="window.open('risk-control-test.html', '_blank')">
+                    <div class="feature-icon">🧪</div>
+                    <div class="feature-title">API测试平台</div>
+                    <div class="feature-description">
+                        测试风险管控系统的各项功能接口，验证系统运行状态和功能完整性
+                    </div>
+                    <button class="feature-btn">开始测试</button>
+                </div>
+
+                <div class="feature-card" onclick="window.open('index.html', '_blank')">
+                    <div class="feature-icon">📈</div>
+                    <div class="feature-title">订单预警监控</div>
+                    <div class="feature-description">
+                        监控订单数量、速度变化，实时预警异常情况，支持多维度统计分析
+                    </div>
+                    <button class="feature-btn">查看监控</button>
+                </div>
+
+                <div class="feature-card" onclick="showSystemInfo()">
+                    <div class="feature-icon">⚙️</div>
+                    <div class="feature-title">系统配置</div>
+                    <div class="feature-description">
+                        查看系统配置信息、风险管控参数、阻断规则设置等系统配置详情
+                    </div>
+                    <button class="feature-btn">查看配置</button>
+                </div>
+            </div>
+
+            <!-- 快速操作 -->
+            <div class="quick-actions">
+                <h3>🚀 快速操作</h3>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="testSystemStatus()">🔍 系统状态检查</button>
+                    <button class="action-btn" onclick="loadSystemStats()">📊 加载系统统计</button>
+                    <button class="action-btn" onclick="exportSystemData()">📤 导出系统数据</button>
+                    <button class="action-btn" onclick="clearTestData()">🗑️ 清空测试数据</button>
+                </div>
+            </div>
+
+            <!-- 系统信息 -->
+            <div class="system-info">
+                <h3>📋 系统信息</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">系统状态</div>
+                        <div class="info-value">
+                            <span class="status-indicator status-online" id="systemStatus"></span>
+                            <span id="statusText">检查中...</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">预警维度</div>
+                        <div class="info-value" id="dimensionsCount">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">权重记录</div>
+                        <div class="info-value" id="weightsCount">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">阻断记录</div>
+                        <div class="info-value" id="blocksCount">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 新功能亮点 -->
+            <div class="highlight">
+                <h4>🎯 Day4 新功能亮点</h4>
+                <ul>
+                    <li><strong>智能风险管控：</strong>基于多维度权重的智能风险评估和阻断机制</li>
+                    <li><strong>预警次数显示：</strong>支持显示"第N次预警"的预警次数统计</li>
+                    <li><strong>权重表管理：</strong>独立的省份、渠道、电话号码维度管理</li>
+                    <li><strong>阻断管理：</strong>支持渠道阻断、解除阻断、阻断轨迹记录</li>
+                    <li><strong>配置化管理：</strong>所有风险参数支持YAML配置，灵活调整</li>
+                    <li><strong>管理界面：</strong>完整的Web管理界面，支持查询、分析、操作</li>
+                </ul>
+            </div>
+
+            <!-- 使用说明 -->
+            <div class="highlight">
+                <h4>📖 使用说明</h4>
+                <ul>
+                    <li><strong>风险管控管理：</strong>点击"风险管控管理"进入主管理界面，查看预警信息、权重记录、阻断状态</li>
+                    <li><strong>API测试：</strong>点击"API测试平台"测试各项接口功能，验证系统运行状态</li>
+                    <li><strong>订单监控：</strong>点击"订单预警监控"查看原有的订单监控功能</li>
+                    <li><strong>快速操作：</strong>使用快速操作按钮进行系统状态检查、数据导出等操作</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🚨 Day4 订单预警风险管控系统</p>
+            <p>基于Spring Boot + 风险管控算法 | 支持实时监控、智能预警、自动化阻断</p>
+            <p>© 2025 学习Java项目 - 风险管控增强版</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/day3/risk-control';
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟1秒后开始检查系统状态
+            setTimeout(() => {
+                testSystemStatus();
+                loadSystemStats();
+            }, 1000);
+        });
+
+        // 测试系统状态
+        async function testSystemStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/statistics`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    document.getElementById('systemStatus').className = 'status-indicator status-online';
+                    document.getElementById('statusText').textContent = '在线';
+                } else {
+                    document.getElementById('systemStatus').className = 'status-indicator status-offline';
+                    document.getElementById('statusText').textContent = '离线';
+                }
+            } catch (error) {
+                document.getElementById('systemStatus').className = 'status-indicator status-offline';
+                document.getElementById('statusText').textContent = '连接失败';
+            }
+        }
+
+        // 加载系统统计信息
+        async function loadSystemStats() {
+            try {
+                const response = await fetch(`${API_BASE}/statistics`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        const data = result.data;
+                        document.getElementById('dimensionsCount').textContent = data.totalDimensions || 0;
+                        document.getElementById('weightsCount').textContent = data.totalWeightRecords || 0;
+                        document.getElementById('blocksCount').textContent = data.totalBlockRecords || 0;
+                    }
+                }
+            } catch (error) {
+                console.error('加载系统统计失败:', error);
+            }
+        }
+
+        // 导出系统数据
+        async function exportSystemData() {
+            try {
+                // 收集所有数据
+                const [dimensions, weights, blocks, config] = await Promise.all([
+                    fetch(`${API_BASE}/dimensions`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }),
+                    fetch(`${API_BASE}/weight-records`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }),
+                    fetch(`${API_BASE}/block-records`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }),
+                    fetch(`${API_BASE}/config`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                ]);
+
+                const [dimensionsData, weightsData, blocksData, configData] = await Promise.all([
+                    dimensions.json(),
+                    weights.json(),
+                    blocks.json(),
+                    config.json()
+                ]);
+
+                const exportData = {
+                    exportTime: new Date().toISOString(),
+                    systemInfo: {
+                        name: 'Day4 订单预警风险管控系统',
+                        version: '4.0',
+                        description: '风险管控增强版'
+                    },
+                    dimensions: dimensionsData.success ? dimensionsData.data : [],
+                    weights: weightsData.success ? weightsData.data : [],
+                    blocks: blocksData.success ? blocksData.data : [],
+                    config: configData.success ? configData.data : {}
+                };
+
+                // 创建下载链接
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `day4-risk-control-export-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                alert('系统数据导出成功！');
+            } catch (error) {
+                alert('导出失败: ' + error.message);
+            }
+        }
+
+        // 清空测试数据
+        async function clearTestData() {
+            if (!confirm('⚠️ 确定要清空所有风险管控测试数据吗？此操作不可恢复！')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/clear-all-data`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    alert('测试数据已清空！');
+                    loadSystemStats(); // 重新加载统计信息
+                } else {
+                    alert('清空数据失败！');
+                }
+            } catch (error) {
+                alert('清空数据失败: ' + error.message);
+            }
+        }
+
+        // 显示系统信息
+        function showSystemInfo() {
+            alert('系统配置信息：\n\n' +
+                  '• 风险管控：已启用\n' +
+                  '• 阻断阈值：60分\n' +
+                  '• 连续预警阻断：3次\n' +
+                  '• 订单数量阻断：50个/小时\n' +
+                  '• 连续天数阻断：5天中有3天预警\n\n' +
+                  '详细配置请查看"风险管控管理"界面');
+        }
+
+        // 定期刷新系统状态
+        setInterval(() => {
+            testSystemStatus();
+        }, 30000); // 每30秒检查一次
+
+        // 定期刷新统计信息
+        setInterval(() => {
+            loadSystemStats();
+        }, 60000); // 每1分钟刷新一次
+    </script>
+</body>
+</html>

@@ -14,19 +14,13 @@
     </parent>
 
     <!-- 项目基本信息 -->
-    <artifactId>day2-rate-limit</artifactId>
+    <artifactId>day4-order-alert</artifactId>
     <packaging>jar</packaging>
 
-    <name>Day2 - Rate Limit</name>
-    <description>Day2学习项目 - 限流器实现，学习限流算法和分布式限流</description>
+    <name>Day4 - Order Alert New Module</name>
+    <description>Day4学习项目 - 订单预警模块，监控订单数量阈值</description>
 
-    <!-- 项目属性配置 -->
-    <properties>
-        <!-- 继承父项目的JDK配置 -->
-        <!-- 其他工具版本 -->
-        <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
-        <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
-    </properties>
+    <!-- 项目属性配置 - 继承父项目，无需重复定义 -->
 
     <!-- 项目依赖 -->
     <dependencies>
@@ -45,20 +39,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- ==================== 限流器相关依赖 ==================== -->
-        
-        <!-- Spring Boot AOP Starter - 面向切面编程 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>
-
-        <!-- Spring Boot Data Redis Starter - Redis支持 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-
         <!-- ==================== 开发工具依赖 ==================== -->
         
         <!-- Spring Boot DevTools - 开发时热重载工具 -->
@@ -75,6 +55,32 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <!-- ==================== 工具依赖 ==================== -->
+        
+        <!-- Lombok - 简化Java代码 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Jackson - JSON处理 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <!-- Bean Validation API - 用于数据验证 -->
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+        
+        <!-- Hibernate Validator - Bean Validation 实现 -->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
     </dependencies>
 
     <!-- 构建配置 -->
@@ -84,9 +90,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
                 <configuration>
                     <!-- 指定主类 -->
-                    <mainClass>com.picc.java.learn.ratelimit.RateLimitApplication</mainClass>
+                    <mainClass>com.picc.java.learn.alert.OrderAlertApplication</mainClass>
                     <!-- 排除开发工具依赖 -->
                     <excludes>
                         <exclude>
@@ -97,67 +104,25 @@
                 </configuration>
             </plugin>
 
-            <!-- Maven 编译插件 -->
+            <!-- Maven 编译插件 - 继承父项目配置 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>UTF-8</encoding>
-                    <!-- 编译时显示详细信息 -->
-                    <verbose>true</verbose>
-                </configuration>
             </plugin>
 
-            <!-- Maven 测试插件 -->
+            <!-- Maven 测试插件 - 继承父项目配置 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.plugin.version}</version>
-                <configuration>
-                    <!-- 跳过测试（可选） -->
-                    <!-- <skipTests>true</skipTests> -->
-                </configuration>
             </plugin>
 
-            <!-- Maven 资源插件 -->
+            <!-- Maven 资源插件 - 继承父项目配置 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
             </plugin>
         </plugins>
     </build>
     
-    <!-- Maven Profiles 配置 -->
-    <profiles>
-        <!-- 开发环境配置 -->
-        <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <spring.profiles.active>dev</spring.profiles.active>
-                <maven.test.skip>false</maven.test.skip>
-            </properties>
-        </profile>
-        
-        <!-- 生产环境配置 -->
-        <profile>
-            <id>prod</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-                <spring.profiles.active>prod</spring.profiles.active>
-                <maven.test.skip>true</maven.test.skip>
-            </properties>
-        </profile>
-    </profiles>
+    <!-- Maven Profiles 配置 - 继承父项目，无需重复定义 -->
 </project>

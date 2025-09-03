@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>风险管控系统 - Day4</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .nav { display: flex; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+        .nav-item { padding: 10px 20px; cursor: pointer; border-bottom: 3px solid transparent; }
+        .nav-item.active { border-bottom-color: #007bff; color: #007bff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .btn { padding: 8px 16px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .table th, .table td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        .table th { background: #f8f9fa; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: #007bff; color: white; padding: 20px; border-radius: 8px; text-align: center; }
+        .stat-card h3 { font-size: 2em; margin: 0; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 5% auto; padding: 20px; border-radius: 8px; width: 80%; max-width: 500px; }
+        .close { float: right; font-size: 28px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 风险管控系统</h1>
+            <p>Day4 - 订单预警风险管控与阻断管理</p>
+        </div>
+
+        <div class="nav">
+            <div class="nav-item active" onclick="showTab('overview')">📊 总览</div>
+            <div class="nav-item" onclick="showTab('dimensions')">🔍 预警维度</div>
+            <div class="nav-item" onclick="showTab('weights')">⚖️ 权重记录</div>
+            <div class="nav-item" onclick="showTab('blocks')">🚫 阻断管理</div>
+        </div>
+
+        <!-- 总览页面 -->
+        <div id="overview" class="tab-content active">
+            <h2>📊 风险管控总览</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3 id="totalDimensions">-</h3>
+                    <p>预警维度总数</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="currentlyBlocked">-</h3>
+                    <p>当前阻断数量</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="highRiskCount">-</h3>
+                    <p>高风险维度</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalWeightRecords">-</h3>
+                    <p>权重记录总数</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>快速查询预警维度Key:</label>
+                <input type="text" id="quickSearchKey" placeholder="输入预警维度Key">
+                <button class="btn btn-primary" onclick="quickSearch()">查询详情</button>
+            </div>
+            <div id="quickSearchResult"></div>
+        </div>
+
+        <!-- 预警维度页面 -->
+        <div id="dimensions" class="tab-content">
+            <h2>🔍 预警维度管理</h2>
+            <button class="btn btn-primary" onclick="loadDimensions()">加载数据</button>
+            <button class="btn btn-success" onclick="refreshDimensions()">刷新</button>
+            <div id="dimensionsTable"></div>
+        </div>
+
+        <!-- 权重记录页面 -->
+        <div id="weights" class="tab-content">
+            <h2>⚖️ 权重记录分析</h2>
+            <button class="btn btn-primary" onclick="loadWeights()">加载数据</button>
+            <button class="btn btn-success" onclick="refreshWeights()">刷新</button>
+            <div id="weightsTable"></div>
+        </div>
+
+        <!-- 阻断管理页面 -->
+        <div id="blocks" class="tab-content">
+            <h2>🚫 阻断管理</h2>
+            <button class="btn btn-primary" onclick="loadBlocks()">加载数据</button>
+            <button class="btn btn-success" onclick="refreshBlocks()">刷新</button>
+            <div id="blocksTable"></div>
+        </div>
+    </div>
+
+    <!-- 解除阻断模态框 -->
+    <div id="unblockModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUnblockModal()">&times;</span>
+            <h2>🔓 解除渠道阻断</h2>
+            <form id="unblockForm">
+                <div class="form-group">
+                    <label>预警维度Key:</label>
+                    <input type="text" id="unblockAlertKey" readonly>
+                </div>
+                <div class="form-group">
+                    <label>解除人:</label>
+                    <input type="text" id="unblockUser" placeholder="输入解除人姓名" required>
+                </div>
+                <div class="form-group">
+                    <label>用户角色:</label>
+                    <select id="unblockUserRole" required>
+                        <option value="">请选择角色</option>
+                        <option value="ADMIN">管理员</option>
+                        <option value="MANAGER">经理</option>
+                        <option value="SUPERVISOR">主管</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>解除原因:</label>
+                    <input type="text" id="unblockReason" placeholder="请输入解除阻断的原因" required>
+                </div>
+                <button type="submit" class="btn btn-success">确认解除</button>
+                <button type="button" class="btn btn-warning" onclick="closeUnblockModal()">取消</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentData = { dimensions: [], weights: [], blocks: [] };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOverviewData();
+        });
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            switch(tabName) {
+                case 'overview': loadOverviewData(); break;
+                case 'dimensions': loadDimensions(); break;
+                case 'weights': loadWeights(); break;
+                case 'blocks': loadBlocks(); break;
+            }
+        }
+
+        async function loadOverviewData() {
+            try {
+                const response = await fetch('/day3/risk-control/statistics', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    const data = result.data;
+                    document.getElementById('totalDimensions').textContent = data.totalDimensions || 0;
+                    document.getElementById('currentlyBlocked').textContent = data.currentlyBlocked || 0;
+                    document.getElementById('highRiskCount').textContent = data.highRiskCount || 0;
+                    document.getElementById('totalWeightRecords').textContent = data.totalWeightRecords || 0;
+                }
+            } catch (error) {
+                alert('加载总览数据失败: ' + error.message);
+            }
+        }
+
+        async function quickSearch() {
+            const alertKey = document.getElementById('quickSearchKey').value.trim();
+            if (!alertKey) {
+                alert('请输入预警维度Key');
+                return;
+            }
+
+            try {
+                const response = await fetch('/day3/risk-control/dimension-detail', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ alertKey: alertKey })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    displayQuickSearchResult(result.data);
+                } else {
+                    alert('查询失败: ' + result.message);
+                }
+            } catch (error) {
+                alert('查询失败: ' + error.message);
+            }
+        }
+
+        function displayQuickSearchResult(data) {
+            const resultDiv = document.getElementById('quickSearchResult');
+            let html = '<div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px;">';
+            html += '<h3>查询结果</h3>';
+            
+            if (data.dimension) {
+                const dim = data.dimension;
+                html += `<p><strong>预警维度:</strong> ${dim.alertKey}</p>`;
+                html += `<p><strong>会员手机号:</strong> ${dim.memberPhone}</p>`;
+                html += `<p><strong>状态:</strong> ${dim.getBlockStatusDescription()}</p>`;
+            }
+            
+            if (data.weightRecord) {
+                const weight = data.weightRecord;
+                html += `<p><strong>总权重:</strong> ${weight.totalWeight || 0}</p>`;
+                html += `<p><strong>风险等级:</strong> ${weight.riskLevel || 'LOW'}</p>`;
+            }
+            
+            html += '</div>';
+            resultDiv.innerHTML = html;
+        }
+
+        async function loadDimensions() {
+            try {
+                const response = await fetch('/day3/risk-control/dimensions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    currentData.dimensions = result.data;
+                    displayDimensions(result.data);
+                }
+            } catch (error) {
+                alert('加载预警维度数据失败: ' + error.message);
+            }
+        }
+
+        function displayDimensions(dimensions) {
+            const tableDiv = document.getElementById('dimensionsTable');
+            
+            if (dimensions.length === 0) {
+                tableDiv.innerHTML = '<p>暂无预警维度数据</p>';
+                return;
+            }
+            
+            let html = '<table class="table">';
+            html += '<thead><tr><th>预警维度Key</th><th>会员手机号</th><th>省份</th><th>渠道</th><th>状态</th><th>操作</th></tr></thead><tbody>';
+            
+            dimensions.forEach(dim => {
+                html += '<tr>';
+                html += `<td>${dim.alertKey}</td>`;
+                html += `<td>${dim.memberPhone}</td>`;
+                html += `<td>${dim.province}</td>`;
+                html += `<td>${dim.channel}</td>`;
+                html += `<td>${dim.getBlockStatusDescription()}</td>`;
+                html += '<td>';
+                if (dim.isCurrentlyBlocked()) {
+                    html += `<button class="btn btn-success" onclick="showUnblockModal('${dim.alertKey}')">解除阻断</button>`;
+                }
+                html += '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            tableDiv.innerHTML = html;
+        }
+
+        function refreshDimensions() {
+            loadDimensions();
+        }
+
+        async function loadWeights() {
+            try {
+                const response = await fetch('/day3/risk-control/weight-records', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    currentData.weights = result.data;
+                    displayWeights(result.data);
+                }
+            } catch (error) {
+                alert('加载权重记录数据失败: ' + error.message);
+            }
+        }
+
+        function displayWeights(weights) {
+            const tableDiv = document.getElementById('weightsTable');
+            
+            if (weights.length === 0) {
+                tableDiv.innerHTML = '<p>暂无权重记录数据</p>';
+                return;
+            }
+            
+            let html = '<table class="table">';
+            html += '<thead><tr><th>预警维度Key</th><th>预警次数</th><th>总权重</th><th>风险等级</th></tr></thead><tbody>';
+            
+            weights.forEach(weight => {
+                html += '<tr>';
+                html += `<td>${weight.alertKey}</td>`;
+                html += `<td>${weight.alertCount || 0}</td>`;
+                html += `<td>${weight.totalWeight || 0}</td>`;
+                html += `<td>${weight.riskLevel || 'LOW'}</td>`;
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            tableDiv.innerHTML = html;
+        }
+
+        function refreshWeights() {
+            loadWeights();
+        }
+
+        async function loadBlocks() {
+            try {
+                const response = await fetch('/day3/risk-control/block-records', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    currentData.blocks = result.data;
+                    displayBlocks(result.data);
+                }
+            } catch (error) {
+                alert('加载阻断记录数据失败: ' + error.message);
+            }
+        }
+
+        function displayBlocks(blocks) {
+            const tableDiv = document.getElementById('blocksTable');
+            
+            if (blocks.length === 0) {
+                tableDiv.innerHTML = '<p>暂无阻断记录数据</p>';
+                return;
+            }
+            
+            let html = '<table class="table">';
+            html += '<thead><tr><th>预警维度Key</th><th>阻断类型</th><th>阻断原因</th><th>阻断时间</th><th>状态</th><th>操作</th></tr></thead><tbody>';
+            
+            blocks.forEach(block => {
+                html += '<tr>';
+                html += `<td>${block.alertKey}</td>`;
+                html += `<td>${block.getBlockTypeDescription()}</td>`;
+                html += `<td>${block.blockReason}</td>`;
+                html += `<td>${block.blockTime}</td>`;
+                html += `<td>${block.getBlockStatusDescription()}</td>`;
+                html += '<td>';
+                if (block.canUnblock()) {
+                    html += `<button class="btn btn-success" onclick="showUnblockModal('${block.alertKey}')">解除阻断</button>`;
+                }
+                html += '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            tableDiv.innerHTML = html;
+        }
+
+        function refreshBlocks() {
+            loadBlocks();
+        }
+
+        function showUnblockModal(alertKey) {
+            document.getElementById('unblockAlertKey').value = alertKey;
+            document.getElementById('unblockModal').style.display = 'block';
+        }
+
+        function closeUnblockModal() {
+            document.getElementById('unblockModal').style.display = 'none';
+            document.getElementById('unblockForm').reset();
+        }
+
+        document.getElementById('unblockForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const alertKey = document.getElementById('unblockAlertKey').value;
+            const unblockUser = document.getElementById('unblockUser').value;
+            const unblockUserRole = document.getElementById('unblockUserRole').value;
+            const unblockReason = document.getElementById('unblockReason').value;
+            
+            try {
+                const response = await fetch('/day3/risk-control/unblock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        alertKey: alertKey,
+                        unblockUser: unblockUser,
+                        unblockUserRole: unblockUserRole,
+                        unblockReason: unblockReason
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('渠道阻断解除成功');
+                    closeUnblockModal();
+                    loadOverviewData();
+                    if (document.getElementById('blocks').classList.contains('active')) {
+                        loadBlocks();
+                    }
+                } else {
+                    alert('解除阻断失败: ' + result.message);
+                }
+            } catch (error) {
+                alert('解除阻断失败: ' + error.message);
+            }
+        });
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('unblockModal');
+            if (event.target === modal) {
+                closeUnblockModal();
+            }
+        }
+    </script>
+</body>
+</html>

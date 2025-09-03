@@ -1,5 +1,6 @@
 package com.picc.java.learn.alert.controller;
 
+import com.picc.java.learn.alert.service.MockRedisService;
 import com.picc.java.learn.alert.vo.*;
 import com.picc.java.learn.alert.common.ApiResponse;
 import com.picc.java.learn.alert.dto.AlertRecordDTO;
@@ -39,8 +40,8 @@ public class OrderController {
 
     @Autowired
     private MockDatabaseService mockDatabaseService;
-
-
+    @Autowired
+    MockRedisService mockRedisService;
 
     /**
      * 创建订单

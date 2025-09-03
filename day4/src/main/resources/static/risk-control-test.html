@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>风险管控API测试 - Day4</title>
+    <style>
+        body { 
+            font-family: 'Microsoft YaHei', Arial, sans-serif; 
+            margin: 20px; 
+            background: #f0f2f5; 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 40px; 
+            padding-bottom: 20px; 
+            border-bottom: 2px solid #e8eaed; 
+        }
+        .header h1 { 
+            color: #1a73e8; 
+            margin-bottom: 10px; 
+        }
+        .test-section { 
+            margin-bottom: 40px; 
+            padding: 25px; 
+            border: 1px solid #e8eaed; 
+            border-radius: 8px; 
+            background: #fafbfc; 
+        }
+        .test-section h3 { 
+            color: #202124; 
+            margin-bottom: 20px; 
+            padding-bottom: 10px; 
+            border-bottom: 1px solid #dadce0; 
+        }
+        .form-group { 
+            margin-bottom: 20px; 
+        }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #5f6368; 
+        }
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #dadce0; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            transition: border-color 0.3s ease; 
+        }
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus { 
+            outline: none; 
+            border-color: #1a73e8; 
+        }
+        .btn { 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: 600; 
+            transition: all 0.3s ease; 
+            margin: 5px; 
+        }
+        .btn-primary { 
+            background: #1a73e8; 
+            color: white; 
+        }
+        .btn-primary:hover { 
+            background: #1557b0; 
+            transform: translateY(-1px); 
+        }
+        .btn-success { 
+            background: #34a853; 
+            color: white; 
+        }
+        .btn-success:hover { 
+            background: #2d8745; 
+            transform: translateY(-1px); 
+        }
+        .btn-warning { 
+            background: #fbbc04; 
+            color: #202124; 
+        }
+        .btn-warning:hover { 
+            background: #f9ab00; 
+            transform: translateY(-1px); 
+        }
+        .btn-danger { 
+            background: #ea4335; 
+            color: white; 
+        }
+        .btn-danger:hover { 
+            background: #d93025; 
+            transform: translateY(-1px); 
+        }
+        .result-box { 
+            margin-top: 20px; 
+            padding: 20px; 
+            border-radius: 8px; 
+            font-family: 'Courier New', monospace; 
+            white-space: pre-wrap; 
+            max-height: 400px; 
+            overflow-y: auto; 
+        }
+        .result-success { 
+            background: #e6f4ea; 
+            border: 1px solid #34a853; 
+            color: #137333; 
+        }
+        .result-error { 
+            background: #fce8e6; 
+            border: 1px solid #ea4335; 
+            color: #c5221f; 
+        }
+        .result-info { 
+            background: #e8f0fe; 
+            border: 1px solid #1a73e8; 
+            color: #174ea6; 
+        }
+        .api-info { 
+            background: #f1f3f4; 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin-bottom: 20px; 
+            font-size: 14px; 
+        }
+        .api-info strong { 
+            color: #1a73e8; 
+        }
+        .grid-2 { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+        }
+        .grid-3 { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 20px; 
+        }
+        .status-indicator { 
+            display: inline-block; 
+            width: 12px; 
+            height: 12px; 
+            border-radius: 50%; 
+            margin-right: 8px; 
+        }
+        .status-online { 
+            background: #34a853; 
+        }
+        .status-offline { 
+            background: #ea4335; 
+        }
+        .loading { 
+            text-align: center; 
+            padding: 20px; 
+            color: #5f6368; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 风险管控API测试平台</h1>
+            <p>Day4 - 测试风险管控系统的各项功能接口</p>
+        </div>
+
+        <!-- 系统状态测试 -->
+        <div class="test-section">
+            <h3>🔍 系统状态测试</h3>
+            <div class="api-info">
+                <strong>测试目的:</strong> 验证风险管控系统是否正常运行，各接口是否可访问
+            </div>
+            <button class="btn btn-primary" onclick="testSystemStatus()">测试系统状态</button>
+            <button class="btn btn-success" onclick="testAllAPIs()">测试所有接口</button>
+            <div id="systemStatusResult"></div>
+        </div>
+
+        <!-- 预警维度管理测试 -->
+        <div class="test-section">
+            <h3>🔍 预警维度管理测试</h3>
+            <div class="api-info">
+                <strong>测试目的:</strong> 测试预警维度的查询、创建和管理功能
+            </div>
+            <div class="grid-2">
+                <div>
+                    <button class="btn btn-primary" onclick="testGetAllDimensions()">查询所有预警维度</button>
+                    <button class="btn btn-success" onclick="testGetDimensionDetail()">查询预警维度详情</button>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>预警维度Key (用于详情查询):</label>
+                        <input type="text" id="testDimensionKey" placeholder="输入预警维度Key，如: 13800138000-44000000-14-12345">
+                    </div>
+                </div>
+            </div>
+            <div id="dimensionsResult"></div>
+        </div>
+
+        <!-- 权重记录测试 -->
+        <div class="test-section">
+            <h3>⚖️ 权重记录测试</h3>
+            <div class="api-info">
+                <strong>测试目的:</strong> 测试权重记录的查询和分析功能
+            </div>
+            <button class="btn btn-primary" onclick="testGetAllWeights()">查询所有权重记录</button>
+            <button class="btn btn-success" onclick="testWeightAnalysis()">权重分析统计</button>
+            <div id="weightsResult"></div>
+        </div>
+
+        <!-- 阻断管理测试 -->
+        <div class="test-section">
+            <h3>🚫 阻断管理测试</h3>
+            <div class="api-info">
+                <strong>测试目的:</strong> 测试渠道阻断的查询、解除和管理功能
+            </div>
+            <div class="grid-2">
+                <div>
+                    <button class="btn btn-primary" onclick="testGetAllBlocks()">查询所有阻断记录</button>
+                    <button class="btn btn-warning" onclick="testUnblockChannel()">测试解除阻断</button>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>预警维度Key:</label>
+                        <input type="text" id="unblockTestKey" placeholder="输入要解除阻断的预警维度Key">
+                    </div>
+                    <div class="form-group">
+                        <label>解除人:</label>
+                        <input type="text" id="unblockTestUser" placeholder="输入解除人姓名" value="测试用户">
+                    </div>
+                    <div class="form-group">
+                        <label>用户角色:</label>
+                        <select id="unblockTestRole">
+                            <option value="ADMIN">管理员</option>
+                            <option value="MANAGER">经理</option>
+                            <option value="SUPERVISOR">主管</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>解除原因:</label>
+                        <textarea id="unblockTestReason" placeholder="输入解除原因" rows="2">API测试解除阻断</textarea>
+                    </div>
+                </div>
+            </div>
+            <div id="blocksResult"></div>
+        </div>
+
+        <!-- 系统配置测试 -->
+        <div class="test-section">
+            <h3>⚙️ 系统配置测试</h3>
+            <div class="api-info">
+                <strong>测试目的:</strong> 测试系统配置的查询和统计功能
+            </div>
+            <div class="grid-3">
+                <div>
+                    <button class="btn btn-primary" onclick="testGetConfig()">查询系统配置</button>
+                </div>
+                <div>
+                    <button class="btn btn-success" onclick="testGetStatistics()">查询统计信息</button>
+                </div>
+                <div>
+                    <button class="btn btn-danger" onclick="testClearAllData()">清空所有数据</button>
+                </div>
+            </div>
+            <div id="configResult"></div>
+        </div>
+
+        <!-- 综合测试 -->
+        <div class="test-section">
+            <h3>🎯 综合功能测试</h3>
+            <div class="api-info">
+                <strong>测试目的:</strong> 模拟完整的风险管控业务流程，测试系统整体功能
+            </div>
+            <button class="btn btn-primary" onclick="testCompleteWorkflow()">执行完整流程测试</button>
+            <button class="btn btn-success" onclick="testDataExport()">测试数据导出</button>
+            <div id="workflowResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/day3/risk-control';
+        let testResults = {};
+
+        // 显示测试结果
+        function showResult(elementId, data, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = `result-${type}`;
+            element.innerHTML = `<div class="result-box ${className}">${JSON.stringify(data, null, 2)}</div>`;
+        }
+
+        // 显示错误结果
+        function showError(elementId, error) {
+            showResult(elementId, { error: error.message || error }, 'error');
+        }
+
+        // 显示成功结果
+        function showSuccess(elementId, data) {
+            showResult(elementId, data, 'success');
+        }
+
+        // 通用API调用函数
+        async function callAPI(endpoint, method = 'POST', body = null) {
+            try {
+                const options = {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${result.message || '请求失败'}`);
+                }
+                
+                return result;
+            } catch (error) {
+                throw new Error(`API调用失败: ${error.message}`);
+            }
+        }
+
+        // 测试系统状态
+        async function testSystemStatus() {
+            try {
+                showResult('systemStatusResult', { status: '正在测试...', timestamp: new Date().toISOString() }, 'info');
+                
+                const result = await callAPI('/statistics');
+                showSuccess('systemStatusResult', {
+                    status: '系统正常',
+                    timestamp: new Date().toISOString(),
+                    data: result.data
+                });
+            } catch (error) {
+                showError('systemStatusResult', error);
+            }
+        }
+
+        // 测试所有API接口
+        async function testAllAPIs() {
+            const results = {};
+            const apis = [
+                { name: '统计信息', endpoint: '/statistics' },
+                { name: '预警维度', endpoint: '/dimensions' },
+                { name: '权重记录', endpoint: '/weight-records' },
+                { name: '阻断记录', endpoint: '/block-records' },
+                { name: '系统配置', endpoint: '/config' }
+            ];
+
+            showResult('systemStatusResult', { status: '正在测试所有接口...', timestamp: new Date().toISOString() }, 'info');
+
+            for (const api of apis) {
+                try {
+                    const result = await callAPI(api.endpoint);
+                    results[api.name] = { status: '成功', data: result.data };
+                } catch (error) {
+                    results[api.name] = { status: '失败', error: error.message };
+                }
+            }
+
+            showSuccess('systemStatusResult', {
+                status: '所有接口测试完成',
+                timestamp: new Date().toISOString(),
+                results: results
+            });
+        }
+
+        // 测试获取所有预警维度
+        async function testGetAllDimensions() {
+            try {
+                const result = await callAPI('/dimensions');
+                showSuccess('dimensionsResult', {
+                    message: '获取预警维度成功',
+                    count: result.data.length,
+                    data: result.data
+                });
+            } catch (error) {
+                showError('dimensionsResult', error);
+            }
+        }
+
+        // 测试获取预警维度详情
+        async function testGetDimensionDetail() {
+            const alertKey = document.getElementById('testDimensionKey').value.trim();
+            if (!alertKey) {
+                showError('dimensionsResult', { error: '请输入预警维度Key' });
+                return;
+            }
+
+            try {
+                const result = await callAPI('/dimension-detail', 'POST', { alertKey: alertKey });
+                showSuccess('dimensionsResult', {
+                    message: '获取预警维度详情成功',
+                    data: result.data
+                });
+            } catch (error) {
+                showError('dimensionsResult', error);
+            }
+        }
+
+        // 测试获取所有权重记录
+        async function testGetAllWeights() {
+            try {
+                const result = await callAPI('/weight-records');
+                showSuccess('weightsResult', {
+                    message: '获取权重记录成功',
+                    count: result.data.length,
+                    data: result.data
+                });
+            } catch (error) {
+                showError('weightsResult', error);
+            }
+        }
+
+        // 测试权重分析
+        async function testWeightAnalysis() {
+            try {
+                const result = await callAPI('/weight-records');
+                const weights = result.data;
+                
+                // 分析权重分布
+                const analysis = {
+                    totalCount: weights.length,
+                    riskLevels: {},
+                    weightRanges: {
+                        '0-20': 0,
+                        '21-40': 0,
+                        '41-60': 0,
+                        '60+': 0
+                    },
+                    averageWeight: 0
+                };
+
+                let totalWeight = 0;
+                weights.forEach(weight => {
+                    // 统计风险等级
+                    const level = weight.riskLevel || 'LOW';
+                    analysis.riskLevels[level] = (analysis.riskLevels[level] || 0) + 1;
+                    
+                    // 统计权重范围
+                    const w = weight.totalWeight || 0;
+                    totalWeight += w;
+                    if (w <= 20) analysis.weightRanges['0-20']++;
+                    else if (w <= 40) analysis.weightRanges['21-40']++;
+                    else if (w <= 60) analysis.weightRanges['41-60']++;
+                    else analysis.weightRanges['60+']++;
+                });
+
+                analysis.averageWeight = weights.length > 0 ? (totalWeight / weights.length).toFixed(2) : 0;
+
+                showSuccess('weightsResult', {
+                    message: '权重分析完成',
+                    analysis: analysis
+                });
+            } catch (error) {
+                showError('weightsResult', error);
+            }
+        }
+
+        // 测试获取所有阻断记录
+        async function testGetAllBlocks() {
+            try {
+                const result = await callAPI('/block-records');
+                showSuccess('blocksResult', {
+                    message: '获取阻断记录成功',
+                    count: result.data.length,
+                    data: result.data
+                });
+            } catch (error) {
+                showError('blocksResult', error);
+            }
+        }
+
+        // 测试解除阻断
+        async function testUnblockChannel() {
+            const alertKey = document.getElementById('unblockTestKey').value.trim();
+            const unblockUser = document.getElementById('unblockTestUser').value.trim();
+            const unblockUserRole = document.getElementById('unblockTestRole').value;
+            const unblockReason = document.getElementById('unblockTestReason').value.trim();
+
+            if (!alertKey || !unblockUser || !unblockUserRole || !unblockReason) {
+                showError('blocksResult', { error: '请填写完整的解除阻断信息' });
+                return;
+            }
+
+            try {
+                const result = await callAPI('/unblock', 'POST', {
+                    alertKey: alertKey,
+                    unblockUser: unblockUser,
+                    unblockUserRole: unblockUserRole,
+                    unblockReason: unblockReason
+                });
+
+                showSuccess('blocksResult', {
+                    message: '解除阻断测试成功',
+                    data: result
+                });
+            } catch (error) {
+                showError('blocksResult', error);
+            }
+        }
+
+        // 测试获取系统配置
+        async function testGetConfig() {
+            try {
+                const result = await callAPI('/config');
+                showSuccess('configResult', {
+                    message: '获取系统配置成功',
+                    data: result.data
+                });
+            } catch (error) {
+                showError('configResult', error);
+            }
+        }
+
+        // 测试获取统计信息
+        async function testGetStatistics() {
+            try {
+                const result = await callAPI('/statistics');
+                showSuccess('configResult', {
+                    message: '获取统计信息成功',
+                    data: result.data
+                });
+            } catch (error) {
+                showError('configResult', error);
+            }
+        }
+
+        // 测试清空所有数据
+        async function testClearAllData() {
+            if (!confirm('⚠️ 确定要清空所有风险管控数据吗？此操作不可恢复！')) {
+                return;
+            }
+
+            try {
+                const result = await callAPI('/clear-all-data', 'POST');
+                showSuccess('configResult', {
+                    message: '清空数据成功',
+                    data: result
+                });
+            } catch (error) {
+                showError('configResult', error);
+            }
+        }
+
+        // 测试完整业务流程
+        async function testCompleteWorkflow() {
+            showResult('workflowResult', { status: '开始执行完整流程测试...', timestamp: new Date().toISOString() }, 'info');
+
+            const workflow = [];
+            try {
+                // 1. 测试系统状态
+                workflow.push('1. 测试系统状态...');
+                const stats = await callAPI('/statistics');
+                workflow.push(`   ✓ 系统状态正常，当前有 ${stats.data.totalDimensions || 0} 个预警维度`);
+
+                // 2. 测试预警维度查询
+                workflow.push('2. 测试预警维度查询...');
+                const dimensions = await callAPI('/dimensions');
+                workflow.push(`   ✓ 成功查询到 ${dimensions.data.length} 个预警维度`);
+
+                // 3. 测试权重记录查询
+                workflow.push('3. 测试权重记录查询...');
+                const weights = await callAPI('/weight-records');
+                workflow.push(`   ✓ 成功查询到 ${weights.data.length} 条权重记录`);
+
+                // 4. 测试阻断记录查询
+                workflow.push('4. 测试阻断记录查询...');
+                const blocks = await callAPI('/block-records');
+                workflow.push(`   ✓ 成功查询到 ${blocks.data.length} 条阻断记录`);
+
+                // 5. 测试系统配置查询
+                workflow.push('5. 测试系统配置查询...');
+                const config = await callAPI('/config');
+                workflow.push(`   ✓ 成功获取系统配置，风险管控${config.data.enabled ? '已启用' : '已禁用'}`);
+
+                workflow.push('\n🎉 完整流程测试完成！所有功能正常。');
+                showSuccess('workflowResult', {
+                    message: '完整流程测试成功',
+                    workflow: workflow,
+                    timestamp: new Date().toISOString()
+                });
+
+            } catch (error) {
+                workflow.push(`\n❌ 测试失败: ${error.message}`);
+                showError('workflowResult', {
+                    message: '完整流程测试失败',
+                    workflow: workflow,
+                    error: error.message
+                });
+            }
+        }
+
+        // 测试数据导出
+        async function testDataExport() {
+            try {
+                showResult('workflowResult', { status: '正在收集数据...', timestamp: new Date().toISOString() }, 'info');
+
+                // 收集所有数据
+                const [dimensions, weights, blocks, config] = await Promise.all([
+                    callAPI('/dimensions'),
+                    callAPI('/weight-records'),
+                    callAPI('/block-records'),
+                    callAPI('/config')
+                ]);
+
+                const exportData = {
+                    exportTime: new Date().toISOString(),
+                    dimensions: dimensions.data,
+                    weights: weights.data,
+                    blocks: blocks.data,
+                    config: config.data
+                };
+
+                // 创建下载链接
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `risk-control-export-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                showSuccess('workflowResult', {
+                    message: '数据导出成功',
+                    exportInfo: {
+                        dimensions: dimensions.data.length,
+                        weights: weights.data.length,
+                        blocks: blocks.data.length,
+                        filename: a.download
+                    },
+                    timestamp: new Date().toISOString()
+                });
+
+            } catch (error) {
+                showError('workflowResult', error);
+            }
+        }
+
+        // 页面加载完成后自动测试系统状态
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟2秒后自动测试系统状态
+            setTimeout(() => {
+                testSystemStatus();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

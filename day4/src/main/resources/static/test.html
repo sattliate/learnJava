@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript测试页面</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 5px; }
+        .result { margin-top: 10px; padding: 10px; background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>JavaScript功能测试</h1>
+    
+    <div class="test-section">
+        <h3>基础功能测试</h3>
+        <button onclick="testBasicFunction()">测试基础函数</button>
+        <button onclick="testDOM()">测试DOM操作</button>
+        <button onclick="testFetch()">测试Fetch API</button>
+        <div id="basicResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>订单系统API测试</h3>
+        <button onclick="testOrderAPI()">测试订单API</button>
+        <div id="apiResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = '/day3/api/orders';
+        
+        function testBasicFunction() {
+            document.getElementById('basicResult').innerHTML = '✅ 基础函数调用成功！';
+        }
+        
+        function testDOM() {
+            const element = document.getElementById('basicResult');
+            element.innerHTML = '✅ DOM操作成功！当前时间: ' + new Date().toLocaleString();
+        }
+        
+        async function testFetch() {
+            try {
+                const response = await fetch(`${API_BASE}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                document.getElementById('basicResult').innerHTML = '✅ Fetch API成功！响应: ' + JSON.stringify(data);
+            } catch (error) {
+                document.getElementById('basicResult').innerHTML = '❌ Fetch API失败: ' + error.message;
+            }
+        }
+        
+        async function testOrderAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                document.getElementById('apiResult').innerHTML = '✅ 订单API测试成功！<br>响应: <pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                document.getElementById('apiResult').innerHTML = '❌ 订单API测试失败: ' + error.message;
+            }
+        }
+        
+        // 页面加载完成后的测试
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('basicResult').innerHTML = '✅ 页面加载完成，JavaScript正常工作！';
+        });
+    </script>
+</body>
+</html>

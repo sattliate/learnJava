@@ -21,6 +21,8 @@
     <modules>
         <module>day1</module>
         <module>day2</module>
+        <module>day3</module>
+        <module>day4</module>
     </modules>
 
     <!-- 为pom定义一些常量，在pom中的其它地方可以直接引用 使用方式 如下 ：${file.encoding} -->
@@ -41,6 +43,10 @@
         <!-- 依赖版本管理 -->
         <spring.boot.version>2.7.18</spring.boot.version>
         
+        <!-- 验证相关依赖版本管理 -->
+        <validation.api.version>2.0.1.Final</validation.api.version>
+        <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
+        
         <!-- 插件版本管理 -->
         <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
@@ -58,6 +64,19 @@
                 <version>${spring.boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            
+            <!-- 验证相关依赖版本管理 -->
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>${validation.api.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.hibernate.validator</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>${hibernate.validator.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
